@@ -1,0 +1,270 @@
+---
+title: "DataTidy/Dplyr Summary"
+author: "Kimaya Rane Ryan Nguyen"
+date: "9/25/2017"
+output: html_document
+---
+
+## Data Tidying Overview
+
+```{r}
+library(DSR)
+```
+
+Data tidying is a useful skill to have, and R is a tool that allows you to tidy your data in an efficient way. It will save you time, it will make it much easier to visualize, manipulate, and model with R. The following data is an example of tidy data:
+
+```{r}
+table1
+```
+
+This is classified as tidy data because it follows three rules: each variable in the data set is placed in its own column, each observation is placed in its own row, and each value is placed in its own cell. If all three of the criteria are met, then the data qualifies as tidydata. R stores tabular data as a data frame. A data frame is a list of vectors that R displays as a table. When your data is tidy, the values of each variable fall in their own column vector.This allows you to easily extract values of a variable in a tidy data set with R's list syntax like shown below.
+
+```{r}
+table1$cases
+```
+
+R returns values as atomic vectors, ultimtely leading to an easy user experience. You can manipulate data by using simple code. In the long run this is helpful beucase you can use basic R syntax instead of having to untangle values when you want to work with variables seperately. For example if you wanted to calculate the rate of of TB cases per country per year, because data table 1 is organized in a tidy fashion you can calculate rate. This is shown below.
+
+```{r}
+table1$cases / table1$population * 10000
+```
+There are no "basic" solutions for any of the other data sets.
+
+### Gather() and Spread () Funtions 
+
+gather() and spread() functions are functions are important functions in tidyr. They rely on key values pairs. Key value pair is a simple way to record information. An example of a key value pair is: Password: 0123456789. Password is the key and the numbers are the value. You can use the spread() function to tidy the layout of key value pair data. For example, we can turn the messy table 2 data into easier to use data using the spread function as shown below.
+
+```{r}
+table2
+```
+
+```{r}
+library(tidyr)
+spread(table2, type, count)
+```
+
+The spread function will add a new column for each unique value of the key column then distribute cells of the former value conlumn across the cells of the new columns and truncates non-key and non-value columns so there are no duplicates. Spread also takes fill, convert, and drop values. If there are variables that do not exist in the original data set "fill" will place NA in the resulting cell. Convert will enusre all the data is the same as a single type. 
+
+Gather does the opposite of the spread function. Gather collects a set of column names and places them into a single "key" column.The gather function will change the original table 5 into a tidy version shown below.
+
+```{r}
+table5
+```
+
+```{r}
+gather(table5, "year", "population", 2:3)
+```
+
+### Other Functions
+
+Other functios include separate() and unite(). Seperate turns a single character column into multiple columns by splitting the values of the column wherever a separator character appears. Unite() does the opposite of seperate().
+
+##Data Transformation Summary
+
+Information can sometimes be stored as a tibble.A tibble is a data frame that has been adjusted to work better in a tidyverse. 
+
+Within dplyr, there are a five primary functions that assist in data manipulation and tiddying:
+
+1. Pick observations by their values (filter()).
+2. Reorder the rows (arrange()).
+3. Pick variables by their names (select()).
+4. Create new variables with functions of existing variables (mutate()).
+5. Collapse many values down to a single summary (summarise()).
+
+All of which can be used along side group_by()
+
+These five primary functions serve the purpose of providing actions to data manipulation language
+
+1. The first argument is a data frame.
+2. The subsequent arguments describe what to do with the data frame, using the variable names (without quotes).
+3. The result is a new data frame.
+
+With filter(), we can sort through data to find data entires that fit particular criteria.This information can then be assigned to a new name via the <- function.It assigns the same variable
+
+In tidying data, values can be sorted by compairson using operants such as <,>,==,!=, <=,>=. This breaks down further into booln operators when conditions must be met such as &(and), |(or) and ! (not). x %in% y command will select all y values in alightment with what is input for x.
+
+If one is using a filter() command, it is important to remember that only true statements will populate and false statements will not. However if something is unknown it can be input as NA or not availiable. 
+
+arrange() can be used in a similar way as filter() however, it rearranges the order of the information rather than selecting it. desc() can be especially helpful when wanting to rearrange columns by in descending order. 
+
+Within select() there are many functions that assist in this select process.
+
+1.starts_with("abc"): matches names that begin with “abc”.
+2.ends_with("xyz"): matches names that end with “xyz”.
+3.contains("ijk"): matches names that contain “ijk”.
+4.matches("(.)\\1"): selects variables that match a regular expression. This one matches any variables that contain repeated characters. You’ll learn more about regular expressions in strings.
+5.num_range("x", 1:3) matches x1, x2 and x3.
+
+mutate() will add new columns to your data set so that you will be able to insert or move information into a better loction that is more descriptive of the data. transmute() will allow you to keep only the new varibles created.
+
+summarise() allows one to condense data into a single row date frame. Both this functions and group_by() sort data. na.rm will remove the missing values prior to the computation.
+
+Arithamtic functions will also run in the program and other measures of spread such as median, mean, and mode also work as functional. Measure of position.
+
+## Going Deeper with Dplyr
+
+### Choosing Columns 
+
+```{r}
+suppressMessages(library(dplyr))
+library(nycflights13)
+```
+Here is the flights dataset from nycflights13
+
+```{r}
+flights
+```
+Here are some other ways to pick columns besides select():
+
+```{r}
+flights %>% select(carrier, flight)
+```
+You can also use the minus sign to hide columns:
+
+```{r}
+flights %>% select(-month, -day)
+``` 
+
+Below are commands you can use to perform other column manipulating functions:
+
+1. Hide a range of columns 
+
+flights %>% select(-(dep_time:arr_delay))
+
+2. Hide any column with a matching name
+
+flights %>% select(-contains("time"))
+
+3. pick columns using a character vector of column names
+
+cols <- c("carrier", "flight", "tailnum")
+flights %>% select(one_of(cols))
+
+rename() and select() can also be used to rename columns.
+
+### Choosing Rows
+
+You can use filter to support the use of multiple conditions, as shown below.
+
+```{r}
+flights %>% filter(dep_time >= 600, dep_time <= 605)
+```
+
+Other functions:
+
+1. between() is a concise alternative for determing if numeric values fall in a range
+
+flights %>% filter(between(dep_time, 600, 605))
+
+2. side note: is.na() can also be useful when filtering
+
+flights %>% filter(!is.na(dep_time))
+
+3. slice() filters rows by position
+
+flights %>% slice(1000:1005)
+
+4. keep the first three rows within each group
+
+flights %>% group_by(month, day) %>% slice(1:3)
+
+5. sample three rows from each group
+
+flights %>% group_by(month, day) %>% sample_n(3)
+
+6. keep three rows from each group with the top dep_delay
+
+flights %>% group_by(month, day) %>% top_n(3, dep_delay)
+
+7. also sort by dep_delay within each group
+
+flights %>% group_by(month, day) %>% top_n(3, dep_delay) %>% arrange(desc(dep_delay))
+
+8. unique rows can be identified using unique() from base R
+
+flights %>% select(origin, dest) %>% unique()
+
+9. dplyr provides an alternative that is more "efficient"
+flights %>% select(origin, dest) %>% distinct()
+
+10. side note: when chaining, you don't have to include the parentheses if there are no arguments
+
+flights %>% select(origin, dest) %>% distinct
+
+### Adding New Variables
+
+1. You can create new variables while keeping the existing variables by using:
+
+flights %>% mutate(speed = distance/air_time*60)
+
+2. transmute() only keeps the new variables:
+
+flights %>% transmute(speed = distance/air_time*60)
+
+3. example data frame with row names
+
+mtcars %>% head()
+
+4. add_rownames() turns row names into an explicit variable
+
+mtcars %>% add_rownames("model") %>% head()
+
+5. side note: dplyr no longer prints row names (ever) for local data frames
+
+mtcars %>% tbl_df()
+
+### Grouping and Counting
+
+1. summarise() can be used to count the number of rows in each group
+
+flights %>% group_by(month) %>% summarise(cnt = n())
+
+2. tally() and count() can do this more concisely
+
+flights %>% group_by(month) %>% tally()
+flights %>% count(month)
+
+3. you can sort by the count
+
+flights %>% group_by(month) %>% summarise(cnt = n()) %>% arrange(desc(cnt))
+
+4. tally() and count() have a sort parameter for this purpose
+
+flights %>% group_by(month) %>% tally(sort=TRUE)
+flights %>% count(month, sort=TRUE)
+
+5. you can sum over a specific variable instead of simply counting rows
+
+flights %>% group_by(month) %>% summarise(dist = sum(distance))
+
+6. tally() and count() have a wt parameter for this purpose
+
+flights %>% group_by(month) %>% tally(wt = distance)
+flights %>% count(month, wt = distance)
+
+7. group_size() returns the counts as a vector
+
+flights %>% group_by(month) %>% group_size()
+
+8. n_groups() simply reports the number of groups
+
+flights %>% group_by(month) %>% n_groups()
+
+9. group by two variables, summarise, arrange (output is possibly confusing)
+
+flights %>% group_by(month, day) %>% summarise(cnt = n()) %>% arrange(desc(cnt)) %>% print(n = 40)
+
+10. ungroup() before arranging to arrange across all groups
+
+flights %>% group_by(month, day) %>% summarise(cnt = n()) %>% ungroup() %>% arrange(desc(cnt))
+
+
+
+
+
+
+
+
+
+
+
